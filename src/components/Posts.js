@@ -1,28 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import _ from 'lodash'
 import Dropdown from 'react-bootstrap/Dropdown';
 import { toast } from 'react-toastify'
+import Alert from 'react-bootstrap/Alert';
 
-import { createPost, deletePost, getAllPosts } from '../service/postsService'
-import ModalEditPost from './ModalEditPost';
+import { deletePost, getAllPosts } from '../service/postsService'
 import ModalComment from './ModalComment';
+import { StoreContext } from '../store/StoreContext';
+import ModalPost from './ModalPost';
+import { formatDate } from '../utils';
+import { likePost, unLikePost, getAllLikesPost } from '../service/likeService';
+import ModalUsersLikePost from './ModalUsersLikePost';
 
 function Posts() {
-    const defaultValuePost = {
-        title: '',
-        content: ''
-    }
+    const { userStore } = useContext(StoreContext)
     const [posts, setPosts] = useState([])
-    const [post, setPost] = useState({ defaultValuePost })
-    const [userData, setUserData] = useState(() => {
-        return JSON.parse(localStorage.getItem('data-user'))
-    })
-
-    const [isShowCreatePost, setIsShowCreatePost] = useState(false)
-    const [isShowModalUpdatePost, setIsShowModalUpdatePost] = useState(false)
-    const [isShowModalCommentPost, setIsShowModalCommentPost] = useState(false)
-    const [dataPostEdit, setDataPostEdit] = useState({})
+    const [postAction, setPostAction] = useState('create')
     const [dataPostComment, setDataPostComment] = useState({})
+    const [dataPostEdit, setDataPostEdit] = useState({})
+    const [dataModalUsersLikePost, setDataModalUsersLikePost] = useState([])
+    const [isShowModalPost, setIsShowModalPost] = useState(false)
+    const [isShowModalCommentPost, setIsShowModalCommentPost] = useState(false)
+    const [isShowModalUsersLikePost, setIsShowModalUsersLikePost] = useState(false)
 
     useEffect(() => {
         fetchAllPost()
@@ -33,32 +32,13 @@ function Posts() {
 
         if (response && +response.data.EC === 0) {
             setPosts(response.data.DT)
+            console.log(response.data.DT);
         }
     }
 
-    const handleOnchangeInputs = (value, name) => {
-        const _post = _.cloneDeep(post)
-        _post[name] = value
-        setPost(_post)
-    }
-
-    const handleCreatePost = async () => {
-        if (!post.title || !post.content) {
-            toast.error('Vui lòng nhập thông tin!')
-            return
-        }
-
-        const response = await createPost({
-            userId: userData.id,
-            title: post.title,
-            content: post.content
-        })
-
-        if (response && +response.data.EC === 0) {
-            setPost(defaultValuePost)
-            setIsShowCreatePost(false)
-            fetchAllPost()
-        }
+    const handleCreatePost = () => {
+        setIsShowModalPost(true)
+        setPostAction('create')
     }
 
     const handleDeletePost = async (post) => {
@@ -71,12 +51,13 @@ function Posts() {
     }
 
     const handleEditPost = (post) => {
-        setIsShowModalUpdatePost(true)
+        setPostAction('update')
+        setIsShowModalPost(true)
         setDataPostEdit(post)
     }
 
-    const handleCancelEditPost = () => {
-        setIsShowModalUpdatePost(false)
+    const handleCancelPost = () => {
+        setIsShowModalPost(false)
     }
 
     const handleCommentPost = (post) => {
@@ -88,41 +69,40 @@ function Posts() {
         setIsShowModalCommentPost(false)
     }
 
+    const handleActionsLikePost = async (post, type) => {
+        const data = {
+            userId: userStore.id,
+            postId: post.id
+        }
+        const response =
+            type === 'like' ?
+                await likePost(data) :
+                await unLikePost(data)
+
+        if (response && +response.data.DT === 0) {
+            toast(response.data.EM)
+            fetchAllPost()
+        }
+    }
+
+    const getAllUsersLikePost = (postId) => {
+        const data = posts.filter(post => post.id === postId)
+        setIsShowModalUsersLikePost(true)
+        setDataModalUsersLikePost(data[0].finalLikePost)
+    }
+
+    const handleCloselModalUserLikePost = () => {
+        setIsShowModalUsersLikePost(false)
+    }
+
     return (
         <>
             <div>
-                <div className='d-flex justify-content-between'>
-                    <h1>Xin chào {userData.username}</h1>
-                    <button
-                        onClick={() => setIsShowCreatePost(true)}
-                        className='btn btn-primary'>Tạo bài viết mới</button>
-                </div>
+                <h1>Xin chào {userStore.username}!</h1>
 
-                {isShowCreatePost &&
-                    <div className='mt-5'>
-                        <div className="mb-3">
-                            <label htmlFor="title" className="form-label">Tiêu đề</label>
-                            <input
-                                onChange={(e) => handleOnchangeInputs(e.target.value, 'title')}
-                                value={post.title}
-                                type="text" className="form-control" id="title" placeholder="Tiêu đề bài viết" />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="content" className="form-label">Nội dung</label>
-                            <input
-                                onChange={(e) => handleOnchangeInputs(e.target.value, 'content')}
-                                value={post.content}
-                                type="text" className="form-control" id="content" placeholder="Nội dung bài viết" />
-                        </div>
-                        <div className='d-flex justify-content-end gap-2'>
-                            <button
-                                onClick={() => setIsShowCreatePost(false)}
-                                className='btn btn-secondary'>Huỷ</button>
-                            <button
-                                onClick={() => handleCreatePost()}
-                                className='btn btn-primary'>Tạo</button>
-                        </div>
-                    </div>}
+                <Alert onClick={() => handleCreatePost()} className='mt-5' variant={'secondary'}>
+                    {userStore.username}, bạn đang nghĩ gì thế?
+                </Alert>
 
                 <div className='container mt-5'>
                     <div className='row row-gap-5'>
@@ -131,8 +111,10 @@ function Posts() {
                                 <div className="card-body">
                                     <div className='my-2'>
                                         <div className='d-flex justify-content-between'>
-                                            <h5>{post.username} - {post.user_id}</h5>
-                                            {userData.id === post.user_id &&
+                                            <h6 style={{ color: '#0d6efd', fontWeight: '600' }}>
+                                                {post.username} · {(formatDate(post.created_at))} · {post.id}
+                                            </h6>
+                                            {userStore.id === post.user_id &&
                                                 <Dropdown>
                                                     <Dropdown.Toggle variant="primary" id="dropdown-basic">
                                                         Tuỳ chọn
@@ -148,29 +130,68 @@ function Posts() {
                                                     </Dropdown.Menu>
                                                 </Dropdown>}
                                         </div>
-                                        <span>Thời gian tạo {post.created_at}</span>
                                     </div>
                                     <h5 className="card-title">{post.title}</h5>
                                     <p className="card-text">{post.content}</p>
-                                    <button onClick={() => handleCommentPost(post)} className="btn btn-primary">Bình luận</button>
+                                    <div className='d-flex justify-content-between mb-3'>
+                                        <span
+                                            onClick={() => getAllUsersLikePost(post.id)}
+                                        >{post.finalLikePost.length} lượt thích</span>
+                                        <span onClick={() => handleCommentPost(post)}>
+                                            {post.countComment} bình luận
+                                        </span>
+                                    </div>
+                                    <div className='d-flex gap-3'>
+                                        {post.finalLikePost.some(likePost =>
+                                            likePost.post_id === post.id && likePost.user_id === userStore.id
+                                        ) ? (
+                                            <button
+                                                onClick={() => handleActionsLikePost(post, "unLike")}
+                                                className='btn btn-success'
+                                            >
+                                                Bỏ Thích
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleActionsLikePost(post, "like")}
+                                                className='btn btn-success'
+                                            >
+                                                Thích
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() => handleCommentPost(post)}
+                                            className="btn btn-primary"
+                                        >
+                                            Bình luận
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
-            </div>
+            </div >
 
-            <ModalEditPost
-                show={isShowModalUpdatePost}
-                handleClose={handleCancelEditPost}
+            <ModalPost
+                show={isShowModalPost}
+                handleClose={handleCancelPost}
                 data={dataPostEdit}
                 fetchAllPost={fetchAllPost}
+                actions={postAction}
             />
 
             <ModalComment
                 show={isShowModalCommentPost}
                 handleClose={handleCloseModalComment}
                 data={dataPostComment}
+                fetchAllPost={fetchAllPost}
+            />
+
+            <ModalUsersLikePost
+                show={isShowModalUsersLikePost}
+                handleClose={handleCloselModalUserLikePost}
+                data={dataModalUsersLikePost}
             />
         </>
     );

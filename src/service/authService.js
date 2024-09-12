@@ -1,13 +1,21 @@
-import axios from "axios";
+import axios from '../config/axios'
 
 const register = (data) => {
-    return axios.post('http://localhost:5000/api/v1/auth/register', { data })
+    return axios.post('api/v1/auth/register', { data })
 }
 
 const login = (data) => {
-    return axios.post('http://localhost:5000/api/v1/auth/login', { data })
+    return axios.post('api/v1/auth/login', { data })
+}
+
+const logout = () => {
+    return axios.get('api/v1/auth/logout')
+}
+
+const decodeToken = () => {
+    return axios.get('api/v1/auth/decode-token')
 }
 
 export {
-    register, login
+    register, login, decodeToken, logout
 }

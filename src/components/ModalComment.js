@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -6,22 +6,16 @@ import { createComment, deleteComment, getAllComments, updateComment } from '../
 import Alert from 'react-bootstrap/Alert';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { toast } from 'react-toastify'
+import { StoreContext } from '../store/StoreContext';
 
 
 function ModalComment(props) {
+    const { userStore } = useContext(StoreContext)
     const [commentList, setCommentList] = useState([])
     const [valueComment, setValueComment] = useState('')
-    const [userData, setUserData] = useState(() => {
-        return JSON.parse(localStorage.getItem('data-user'))
-    })
 
     const [indexInputComment, setIndexInputComment] = useState(-1)
     const [valueEditComment, setValueEditComment] = useState('')
-
-    useEffect(() => {
-        console.log(props.data);
-
-    }, [props.data])
 
     useEffect(() => {
         props.show && fetchAllComments()
@@ -37,18 +31,22 @@ function ModalComment(props) {
     }
 
     const handleComment = async () => {
-        const user = JSON.parse(localStorage.getItem('data-user'))
+        if (!valueComment) {
+            toast.error('Vui lòng nhập bình luận')
+            return
+        }
+
         const data = {
-            userId: user.id,
+            userId: userStore.id,
             postId: props.data.id,
             content: valueComment
         }
         const response = await createComment(data)
-        console.log(response);
 
         if (response && +response.data.EC === 0) {
             toast(response.data.EM)
             fetchAllComments()
+            props.fetchAllPost()
             setValueComment("")
         }
     }
@@ -93,15 +91,18 @@ function ModalComment(props) {
                 <Modal.Header closeButton>
                     <Modal.Title>Bình luận</Modal.Title>
                 </Modal.Header>
-                {commentList.length > 0 ?
+
+                {commentList && commentList.length > 0 ?
                     <Modal.Body>
                         {commentList.map((comment, index) => (
                             <Alert key={index} variant={'light'}>
                                 <div className='d-flex justify-content-between'>
                                     <h6>{comment.username}</h6>
-                                    {userData.id === comment.user_id &&
+                                    {userStore.id === comment.user_id &&
                                         <Dropdown>
-                                            <Dropdown.Toggle variant="primary" id="dropdown-basic" />
+                                            <Dropdown.Toggle variant="primary" id="dropdown-basic">
+                                                Tuỳ chọn
+                                            </Dropdown.Toggle>
 
                                             <Dropdown.Menu>
                                                 <Dropdown.Item
@@ -116,9 +117,9 @@ function ModalComment(props) {
                                 {index !== indexInputComment &&
                                     <span>{comment.content}</span>}
                                 {index === indexInputComment &&
-                                    <Form.Group className='mt-2'>
+                                    <Form.Group className='mt-3'>
                                         <Form.Control
-                                            value={valueEditComment}
+                                            value={valueEditComment || ''}
                                             onChange={(e) => setValueEditComment(e.target.value)}
                                             type="text"
                                         />
@@ -138,7 +139,8 @@ function ModalComment(props) {
                 <Modal.Footer>
                     <Form.Group className='flex-fill'>
                         <Form.Control
-                            value={valueComment}
+                            value={valueComment || ''}
+                            onKeyDown={(e) => e.key === 'Enter' && handleComment()}
                             onChange={(e) => setValueComment(e.target.value)}
                             type="text" placeholder="Nhập nội dung..."
                         />

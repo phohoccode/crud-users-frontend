@@ -1,19 +1,19 @@
-import axios from "axios";
+import axios from '../config/axios'
 
 const getAllPosts = () => {
-    return axios.get(`http://localhost:5000/api/v1/posts/read`)
+    return axios.get(`api/v1/posts/read`)
 }
 
 const createPost = (data) => {
-    return axios.post('http://localhost:5000/api/v1/posts/create', { ...data })
+    return axios.post('api/v1/posts/create', { ...data })
 }
 
 const deletePost = (postId) => {
-    return axios.delete(`http://localhost:5000/api/v1/posts/delete/${postId}`)
+    return axios.delete(`api/v1/posts/delete/${postId}`)
 }
 
 const updatePost = (data) => {
-    return axios.put(`http://localhost:5000/api/v1/posts/update/${data.id}`, { ...data })
+    return axios.put(`api/v1/posts/update/${data.id}`, { ...data })
 }
 
 export {
