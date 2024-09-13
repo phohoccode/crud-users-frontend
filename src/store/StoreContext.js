@@ -14,19 +14,20 @@ function StoreProvider({ children }) {
     const [isLogin, setIsLogin] = useState(false)
 
     useEffect(() => {
-        fetchDataAccount()
+        if (window.location.pathname !== '/login') {            
+            fetchDataAccount()
+        }
     }, [])
 
     const fetchDataAccount = async () => {
         const response = await decodeToken()
-        
+
         if (response && +response.data.EC !== 0) {
             toast.error(response.data.EM)
+            window.location.href = '/login'
             return
         }
 
-        console.log(response.data.DT.account);
-        
         const data = response.data.DT.account
         setUserStore({
             id: data.id,

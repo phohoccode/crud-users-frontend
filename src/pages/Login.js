@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { login } from '../service/authService';
 import { handleOnchangeInputs } from '../utils';
 import { StoreContext } from '../store/StoreContext';
+import '../style/index.css' 
 
 function Login() {
     const { setUserStore, fetchDataAccount } = useContext(StoreContext)
@@ -37,7 +38,7 @@ function Login() {
 
     return (
         <div className='container d-flex align-items-center justify-content-center min-vh-100'>
-            <div className='shadow w-50 p-3 mb-5 bg-body rounded'>
+            <div className='shadow w-sm-100 w-50  p-3 mb-5 bg-body rounded'>
                 <h3 className='text-center mb-3'>Đăng nhập</h3>
                 <div className="mb-3">
                     <label htmlFor="email" className="form-label">Email</label>
@@ -54,7 +55,7 @@ function Login() {
                         onChange={(e) =>
                             handleOnchangeInputs(setUser, user, e.target.value, 'password')}
                         value={user.password}
-                        type="password" className="form-control" id="password" />
+                        type="password" className="form-control" id="password" placeholder='Mật khẩu' />
                 </div>
                 <div className='my-3 d-flex justify-content-end'>
                     <button onClick={() => handleLogin()} className='btn btn-primary'>Đăng nhập</button>

@@ -18,7 +18,7 @@ function ModalUsersLikePost(props) {
                 {users.length > 0 ?
                     <Modal.Body className="row">
                         {users.map((user, index) => (
-                            <h5 key={index}>{user.userLikePost}</h5>
+                            <h5 key={index}>{user.username}</h5>
                         ))}
                     </Modal.Body> : 
                     <Modal.Body>Chưa có lượt thích</Modal.Body>

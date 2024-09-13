@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 
 import { register } from '../service/authService';
 import { handleOnchangeInputs } from '../utils';
+import '../style/index.css' 
 
 function Register() {
     const navigate = useNavigate()
@@ -31,12 +32,11 @@ function Register() {
         } else {
             toast.error(response.data.EM)
         }
-
     }
 
     return (
         <div className='container d-flex align-items-center justify-content-center min-vh-100'>
-            <div className='shadow w-50 p-3 mb-5 bg-body rounded'>
+            <div className='shadow w-50 w-sm-100 p-3 mb-5 bg-body rounded'>
                 <h3 className='text-center mb-3'>Đăng ký</h3>
                 <div className="mb-3">
                     <label htmlFor="username" className="form-label">Tên người dùng</label>
@@ -58,7 +58,9 @@ function Register() {
                         onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
                         value={user.password}
                         onChange={(e) => handleOnchangeInputs(setUser, user, e.target.value, 'password')}
-                        type="password" className="form-control" id="password"/>
+                        type="password" className="form-control" id="password"
+                        placeholder='Mật khẩu'
+                    />
                 </div>
                 <div className='my-3 d-flex justify-content-end'>
                     <button onClick={() => handleRegister()} className='btn btn-primary'>Đăng ký</button>
