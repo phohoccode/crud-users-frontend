@@ -16,6 +16,7 @@ const updatePost = (data) => {
     return axios.put(`api/v1/posts/update/${data.id}`, { ...data })
 }
 
+
 export {
     getAllPosts,
     createPost,

@@ -9,7 +9,7 @@ import { StoreContext } from '../store/StoreContext';
 import '../style/index.css' 
 
 function Login() {
-    const { setUserStore, fetchDataAccount } = useContext(StoreContext)
+    const { setUserStore, fetchDataAccount, width } = useContext(StoreContext)
     const navigate = useNavigate()
     const defaultValue = {
         email: '',
@@ -38,7 +38,7 @@ function Login() {
 
     return (
         <div className='container d-flex align-items-center justify-content-center min-vh-100'>
-            <div className='shadow w-sm-100 w-50  p-3 mb-5 bg-body rounded'>
+            <div className={`shadow ${width < 467 ? 'w-100' : 'w-50'} p-3 mb-5 bg-body rounded`}>
                 <h3 className='text-center mb-3'>Đăng nhập</h3>
                 <div className="mb-3">
                     <label htmlFor="email" className="form-label">Email</label>
@@ -70,3 +70,4 @@ function Login() {
 }
 
 export default Login;
+

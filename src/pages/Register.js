@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import _ from 'lodash'
 
@@ -6,9 +6,11 @@ import { toast } from 'react-toastify';
 
 import { register } from '../service/authService';
 import { handleOnchangeInputs } from '../utils';
-import '../style/index.css' 
+import '../style/index.css'
+import { StoreContext } from '../store/StoreContext';
 
 function Register() {
+    const { width } = useContext(StoreContext)
     const navigate = useNavigate()
     const defaultValue = {
         username: '',
@@ -36,7 +38,7 @@ function Register() {
 
     return (
         <div className='container d-flex align-items-center justify-content-center min-vh-100'>
-            <div className='shadow w-50 w-sm-100 p-3 mb-5 bg-body rounded'>
+            <div className={`shadow ${width < 467 ? 'w-100' : 'w-50'} p-3 mb-5 bg-body rounded`}>
                 <h3 className='text-center mb-3'>Đăng ký</h3>
                 <div className="mb-3">
                     <label htmlFor="username" className="form-label">Tên người dùng</label>

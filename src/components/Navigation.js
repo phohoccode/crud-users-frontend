@@ -15,7 +15,7 @@ function Navigation() {
     const { userStore, setUserStore, defaultUser, setIsLogin } = useContext(StoreContext)
     const navigate = useNavigate()
     const [isShowModalChangePass, setIsShowModalChangePass] = useState(false)
-
+    const [valueSearch, setValueSearch] = useState("")
 
     const handleLogout = async () => {
         const response = await logout()
@@ -36,6 +36,10 @@ function Navigation() {
         setIsShowModalChangePass(false)
     }
 
+    const handleSearchPosts = () => {
+        navigate(`/search/${valueSearch}`)
+    }
+
     return (
         <>
             <Navbar expand="lg" className="bg-body-tertiary">
@@ -48,7 +52,7 @@ function Navigation() {
                             style={{ maxHeight: '100px' }}
                             navbarScroll
                         >
-                            <Nav.Link href='/' >Trang chủ</Nav.Link>
+                            <Link to='/' className='nav-link'>Trang chủ</Link>
                             <NavDropdown title="Tuỳ chọn" id="navbarScrollingDropdown">
                                 <Link to='/user' className='dropdown-item d-flex align-items-center gap-1'>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
@@ -71,6 +75,19 @@ function Navigation() {
                                 </Nav.Item>
                             </NavDropdown>
                         </Nav>
+                        <Form className="d-flex">
+                            <Form.Control
+                                onChange={(e) => setValueSearch(e.target.value)}
+                                value={valueSearch}
+                                type="search"
+                                placeholder="Tìm kiếm bài viết..."
+                                className="me-2"
+                                aria-label="Search"
+                            />
+                            <Button
+                                onClick={() => handleSearchPosts()}
+                            variant="outline-success">Tìm</Button>
+                        </Form>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>

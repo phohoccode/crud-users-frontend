@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
@@ -6,9 +6,10 @@ import Form from 'react-bootstrap/Form';
 import { handleOnchangeInputs } from '../utils';
 import { changePass } from '../service/userService';
 import { toast } from 'react-toastify';
-import { Link } from 'react-router-dom';
+import { StoreContext } from '../store/StoreContext'
 
 function ModalChangePass(props) {
+    const { width } = useContext(StoreContext)
     const defaultData = {
         pass: '',
         newPass: ''
@@ -38,7 +39,7 @@ function ModalChangePass(props) {
     }
 
     return (
-        <Modal show={props.show} onHide={handleCloseModal}>
+        <Modal show={props.show} onHide={handleCloseModal} centered={width < 467}>
             <Modal.Header closeButton>
                 <Modal.Title>Thay đổi mật khẩu</Modal.Title>
             </Modal.Header>

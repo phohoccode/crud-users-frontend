@@ -1,10 +1,13 @@
 import Posts from '../components/Posts';
+import { PostsProvider } from '../store/PostsContext';
 
 function Home() {
 
     return (
         <div className="container mt-5">
-            <Posts />
+            <PostsProvider>
+                <Posts />
+            </PostsProvider>
         </div>
     );
 }

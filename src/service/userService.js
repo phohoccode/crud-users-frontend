@@ -6,9 +6,12 @@ const changePass = (data) => {
 
 const changeInfo = (data) => {
     return axios.post('api/v1/user/change-info', { ...data })
+}
 
+const search = (value) => {
+    return axios.post('api/v1/user/search', value)
 }
 
 export {
-    changePass, changeInfo
+    changePass, changeInfo, search
 }

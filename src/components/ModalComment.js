@@ -2,20 +2,26 @@ import { useContext, useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { createComment, deleteComment, getAllComments, updateComment } from '../service/commentService';
+import {
+    createComment,
+    deleteComment,
+    getAllComments,
+    updateComment
+} from '../service/commentService';
 import Alert from 'react-bootstrap/Alert';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { toast } from 'react-toastify'
 import { StoreContext } from '../store/StoreContext';
-
+import Spinner from 'react-bootstrap/Spinner';
 
 function ModalComment(props) {
+    const { width } = useContext(StoreContext)
     const { userStore } = useContext(StoreContext)
     const [commentList, setCommentList] = useState([])
     const [valueComment, setValueComment] = useState('')
-
     const [indexInputComment, setIndexInputComment] = useState(-1)
     const [valueEditComment, setValueEditComment] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         props.show && fetchAllComments()
@@ -35,6 +41,8 @@ function ModalComment(props) {
             return
         }
 
+        setIsLoading(true)
+
         const data = {
             userId: userStore.id,
             postId: props.data.post_id,
@@ -43,9 +51,10 @@ function ModalComment(props) {
         const response = await createComment(data)
 
         if (response && +response.data.EC === 0) {
+            await props.fetchAllPost()
             toast(response.data.EM)
             fetchAllComments()
-            props.fetchAllPost()
+            setIsLoading(false)
             setValueComment("")
         }
     }
@@ -87,7 +96,7 @@ function ModalComment(props) {
 
     return (
         <>
-            <Modal show={props.show} onHide={handleClose}>
+            <Modal show={props.show} onHide={handleClose} fullscreen={width < 467}>
                 <Modal.Header closeButton>
                     <Modal.Title>Bình luận</Modal.Title>
                 </Modal.Header>
@@ -158,9 +167,24 @@ function ModalComment(props) {
                             type="text" placeholder="Nhập nội dung..."
                         />
                     </Form.Group>
-                    <Button
-                        disabled={valueComment === ''}
-                        onClick={() => handleComment()}>Bình luận</Button>
+                    {isLoading ?
+                        <Button variant="primary" disabled>
+                            <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                            />
+                            <span className="visually-hidden">Loading...</span>
+                        </Button> :
+                        <Button
+                            disabled={valueComment === ''}
+                            onClick={() => handleComment()}>
+                            Bình luận
+                        </Button>
+                    }
+
                 </Modal.Footer>
             </Modal>
         </>

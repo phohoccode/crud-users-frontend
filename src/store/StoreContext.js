@@ -12,6 +12,15 @@ function StoreProvider({ children }) {
     }
     const [userStore, setUserStore] = useState(defaultUser)
     const [isLogin, setIsLogin] = useState(false)
+    const [width, setWidth] = useState(window.innerWidth)
+
+    useEffect(() => {
+        const handleReSize = () => {
+            setWidth(window.innerWidth)
+        }
+        window.addEventListener('resize', handleReSize)
+        return () => document.removeEventListener('resize', handleReSize)
+    }, [width])
 
     useEffect(() => {
         if (window.location.pathname !== '/login') {            
@@ -29,16 +38,21 @@ function StoreProvider({ children }) {
         }
 
         const data = response.data.DT.account
+        console.log(data);
+              
         setUserStore({
             id: data.id,
             username: data.username,
-            email: data.email
+            email: data.email,
+            phone: data.phone,
+            address: data.address,
+            gender: data.gender
         })
         setIsLogin(true)
         toast(response.data.EM)
     }
 
-    const value = { defaultUser, isLogin, setIsLogin, userStore, setUserStore, fetchDataAccount }
+    const value = { defaultUser, width, isLogin, setIsLogin, userStore, setUserStore, fetchDataAccount }
 
     return (
         <StoreContext.Provider value={value}>
