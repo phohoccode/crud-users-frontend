@@ -34,7 +34,7 @@ function StoreProvider({ children }) {
         console.log(response)
         if (response && +response.data.EC !== 0) {
             toast.error(response.data.EM)
-            // window.location.href = '/login'
+            window.location.href = '/login'
             return
         }
 
