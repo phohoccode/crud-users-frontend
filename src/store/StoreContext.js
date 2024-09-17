@@ -23,6 +23,7 @@ function StoreProvider({ children }) {
     }, [width])
 
     useEffect(() => {
+        console.log(window.location.pathname)
         if (window.location.pathname !== '/login') {            
             fetchDataAccount()
         }
@@ -30,10 +31,10 @@ function StoreProvider({ children }) {
 
     const fetchDataAccount = async () => {
         const response = await decodeToken()
-
+        console.log(response)
         if (response && +response.data.EC !== 0) {
             toast.error(response.data.EM)
-            window.location.href = '/login'
+            // window.location.href = '/login'
             return
         }
 
