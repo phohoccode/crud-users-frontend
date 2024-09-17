@@ -6,12 +6,15 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css'
 
 import { StoreProvider } from './store/StoreContext'
+import { PostsProvider } from './store/PostsContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     //   <React.StrictMode>
     <StoreProvider>
-        <App />
+        <PostsProvider>
+            <App />
+        </PostsProvider>
     </StoreProvider>
     //   </React.StrictMode>
 );

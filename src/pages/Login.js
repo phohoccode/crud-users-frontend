@@ -6,7 +6,6 @@ import { toast } from 'react-toastify'
 import { login } from '../service/authService';
 import { handleOnchangeInputs } from '../utils';
 import { StoreContext } from '../store/StoreContext';
-import '../style/index.css' 
 
 function Login() {
     const { setUserStore, fetchDataAccount, width } = useContext(StoreContext)
@@ -23,6 +22,7 @@ function Login() {
             toast.error('Vui lòng nhập thông tin!')
             return
         }
+
         const response = await login(user)
 
         if (response && +response.data.EC === 0) {

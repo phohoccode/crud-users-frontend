@@ -9,7 +9,7 @@ const changeInfo = (data) => {
 }
 
 const search = (value) => {
-    return axios.post('api/v1/user/search', value)
+    return axios.get(`api/v1/user/search/${value}`)
 }
 
 export {

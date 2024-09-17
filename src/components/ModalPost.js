@@ -7,7 +7,6 @@ import { createPost, updatePost } from '../service/postsService';
 import { toast } from 'react-toastify';
 import { handleOnchangeInputs } from '../utils';
 import { StoreContext } from '../store/StoreContext';
-import "../style/index.css"
 import Image from './Image';
 import UploadImage from './UploadImage';
 
@@ -24,7 +23,6 @@ function ModalPost(props) {
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
-        console.log(props.actions)
         if (props.actions === 'update') {
             setPost({
                 id: props.data.post_id,
@@ -66,12 +64,12 @@ function ModalPost(props) {
             await updatePost(data)
 
         if (response && +response.data.EC === 0) {
+            await props.fetchAllPost()
             toast(response.data.EM)
             setPost(defaultPost)
             setIsLoading(false)
             images.length > 0 && setImages([])
             props.handleClose()
-            props.fetchAllPost()
         }
 
     }

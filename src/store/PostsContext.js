@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { deletePost } from "../service/postsService";
 import { likePost, unLikePost } from "../service/likeService";
@@ -9,7 +9,6 @@ const PostsContext = createContext(null)
 function PostsProvider({ children }) {
     const { userStore } = useContext(StoreContext)
     const [posts, setPosts] = useState([])
-    const [images, setImages] = useState([])
     const [postAction, setPostAction] = useState('create')
     const [dataPostComment, setDataPostComment] = useState({})
     const [dataPostEdit, setDataPostEdit] = useState({})
@@ -20,14 +19,18 @@ function PostsProvider({ children }) {
     const [isLoading, setIsLoading] = useState(false)
     const [indexLoadingLikeOrUnlike, setIndexLoadingLikeOrUnlike] = useState(-1)
 
+    useEffect(() => {
+        fetchAllPost()
+    }, [])
+
     const fetchAllPost = async () => {
         const response = await getAllPosts()
 
         if (response && +response.data.EC === 0) {
-            console.log(response.data.DT);
             setPosts(response.data.DT)
-            setImages(response.data.DT.images)
             setIsLoading(true)
+
+            return response.data.DT
         } else {
             toast.error(response.data.EM)
         }
@@ -37,7 +40,6 @@ function PostsProvider({ children }) {
         setIsShowModalPost(true)
         setPostAction('create')
     }
-
 
     const handleDeletePost = async (post) => {
         const response = await deletePost(post.post_id)
@@ -87,7 +89,7 @@ function PostsProvider({ children }) {
         }
     }
 
-    const getAllUsersLikePost = (postId, posts) => {
+    const getAllUsersLikePost = (postId) => {
         const data = posts.filter(post => post.post_id === postId)
         setIsShowModalUsersLikePost(true)
         setDataModalUsersLikePost(data[0].usersLikePost)
@@ -99,7 +101,6 @@ function PostsProvider({ children }) {
 
     const value = {
         posts,
-        images,
         userStore,
         isShowModalPost,
         dataPostEdit,
@@ -110,6 +111,7 @@ function PostsProvider({ children }) {
         isShowModalCommentPost,
         isLoading,
         indexLoadingLikeOrUnlike,
+        setIsLoading,
         handleCreatePost,
         handleDeletePost,
         handleEditPost,

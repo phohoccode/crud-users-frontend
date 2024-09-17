@@ -1,12 +1,9 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import _ from 'lodash'
-
 import { toast } from 'react-toastify';
 
 import { register } from '../service/authService';
 import { handleOnchangeInputs } from '../utils';
-import '../style/index.css'
 import { StoreContext } from '../store/StoreContext';
 
 function Register() {
@@ -22,6 +19,11 @@ function Register() {
     const handleRegister = async () => {
         if (!user.username || !user.email || !user.password) {
             toast.error('Vui lòng nhập thông tin!')
+            return
+        }
+
+        if (user.password.length < 5) {
+            toast.error('Mật khẩu tối thiểu 6 kí tự!')
             return
         }
 

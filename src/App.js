@@ -8,8 +8,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import Navigation from './components/Navigation';
 import { useContext } from 'react';
 import { StoreContext } from './store/StoreContext';
-import User from './pages/User';
 import Search from './pages/Search';
+import Info from './pages/Info';
+import User from './pages/User';
+import NotFound from './pages/NotFound';
+import Footer from './components/Footer';
 
 function App() {
     const { isLogin } = useContext(StoreContext)
@@ -21,10 +24,13 @@ function App() {
                 <Routes>
                     <Route path='/' element={<Home />} />
                     <Route path='/search/:value' element={<Search />} />
-                    <Route path='/user' element={<User />} />
+                    <Route path='/user/info' element={<Info />} />
+                    <Route path='/user/:userId/:username' element={<User />} />
                     <Route path='/login' element={<Login />} />
                     <Route path='/register' element={<Register />} />
+                    <Route path='*' element={<NotFound />} />
                 </Routes>
+                {isLogin && <Footer />}
             </Router>
 
             <ToastContainer

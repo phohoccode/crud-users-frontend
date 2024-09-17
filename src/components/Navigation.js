@@ -37,14 +37,14 @@ function Navigation() {
     }
 
     const handleSearchPosts = () => {
-        navigate(`/search/${valueSearch}`)
+        valueSearch && navigate(`/search/${valueSearch}`)
     }
 
     return (
         <>
             <Navbar expand="lg" className="bg-body-tertiary">
                 <Container fluid>
-                    <Navbar.Brand href="#">PHOSOCICALS</Navbar.Brand>
+                    <Navbar.Brand href="/" style={{ color: 'rgb(13, 110, 253)', fontWeight: '900' }}>PHOSOCICAL</Navbar.Brand>
                     <Navbar.Toggle aria-controls="navbarScroll" />
                     <Navbar.Collapse id="navbarScroll">
                         <Nav
@@ -54,7 +54,7 @@ function Navigation() {
                         >
                             <Link to='/' className='nav-link'>Trang chủ</Link>
                             <NavDropdown title="Tuỳ chọn" id="navbarScrollingDropdown">
-                                <Link to='/user' className='dropdown-item d-flex align-items-center gap-1'>
+                                <Link to='/user/info' className='dropdown-item d-flex align-items-center gap-1'>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-person" viewBox="0 0 16 16">
                                         <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
                                     </svg>
@@ -86,7 +86,7 @@ function Navigation() {
                             />
                             <Button
                                 onClick={() => handleSearchPosts()}
-                            variant="outline-success">Tìm</Button>
+                                variant="outline-success">Tìm</Button>
                         </Form>
                     </Navbar.Collapse>
                 </Container>

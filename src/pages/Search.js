@@ -1,41 +1,99 @@
 import { useState, useContext, useEffect } from "react"
-import { StoreContext } from "../store/StoreContext"
-import {search} from '../service/userService'
-import { toast } from "react-toastify"
+import { useParams } from 'react-router-dom'
+import { PostsContext } from "../store/PostsContext"
+import Loading from "../components/Loading"
+import Post from "../components/Post"
+import ModalPost from "../components/ModalPost"
+import ModalComment from "../components/ModalComment"
+import ModalUsersLikePost from "../components/ModalUsersLikePost"
 
 function Search() {
-    const { userStore } = useContext(StoreContext)
-    const [posts, setPosts] = useState([])
-    const [isShowModalPost, setIsShowModalPost] = useState(false)
-    const [postAction, setPostAction] = useState('create')
-    const [dataPostComment, setDataPostComment] = useState({})
-    const [dataPostEdit, setDataPostEdit] = useState({})
-    const [images, setImages] = useState([])
-    const [dataModalUsersLikePost, setDataModalUsersLikePost] = useState([])
-    const [isShowModalCommentPost, setIsShowModalCommentPost] = useState(false)
-    const [isShowModalUsersLikePost, setIsShowModalUsersLikePost] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [indexLoadingLikeOrUnlike, setIndexLoadingLikeOrUnlike] = useState(-1)
+    const params = useParams()
+    const [isLoading, setIsLoading] = useState(true)
+    const {
+        isShowModalPost,
+        dataPostEdit,
+        postAction,
+        isShowModalCommentPost,
+        dataPostComment,
+        isShowModalUsersLikePost,
+        dataModalUsersLikePost,
+        handleCancelPost,
+        handleCloseModalComment,
+        handleCloselModalUserLikePost,
+        fetchAllPost,
+        posts
+    } = useContext(PostsContext)
+    const [postsSearch, setPostsSearch] = useState([])
 
     useEffect(() => {
-        fetchAllPost()
-    }, [])
+        setPostsSearch(buildPostsDataByValueSearch())
+    }, [posts])
 
-    const fetchAllPost = async () => {
-        const response = await search()
+    useEffect(() => {
+        setIsLoading(true)
+        setPostsSearch(buildPostsDataByValueSearch())
+    }, [params.value])
 
-        if (response && +response.data.EC === 0) {
-            setPosts(response.data.DT)
-            setImages(response.data.DT.images)
-            setIsLoading(true)
-        } else {
-            toast.error(response.data.EM)
-        }
+
+    const buildPostsDataByValueSearch = () => {
+        const valueSearch = params.value.toLowerCase()
+        const data = posts.filter(post => {
+            return post.title.toLowerCase().includes(valueSearch) ||
+                post.content.toLowerCase().includes(valueSearch)
+        })
+
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 1000)
+        return data
     }
 
     return (
-        <div>
+        <div className="container">
+            {isLoading &&
+                <Loading content="Đang tìm kiếm bài viết phù hợp..." />
+            }
+            {(postsSearch && postsSearch.length === 0 && !isLoading) &&
+                <h4 className='text-center mt-5'>Không tìm thấy bài viết phù hợp cho từ khoá "{params.value}"</h4>
+            }
+            {(postsSearch && postsSearch.length > 0 && !isLoading) &&
+                <div className='container mt-5'>
+                    <h4 className='mb-5'>Tìm thấy {postsSearch.length} bài viết phù hợp cho từ khoá "{params.value}"</h4>
+                    <div className='row row-gap-5'>
+                        {postsSearch.map((post, index) => (
+                            <Post
+                                key={index}
+                                index={index}
+                                post={post}
+                                posts={postsSearch}
+                                fetchAllPost={fetchAllPost}
+                            />
+                        ))}
+                    </div>
+                </div>
+            }
 
+            <ModalPost
+                show={isShowModalPost}
+                handleClose={handleCancelPost}
+                data={dataPostEdit}
+                fetchAllPost={fetchAllPost}
+                actions={postAction}
+            />
+
+            <ModalComment
+                show={isShowModalCommentPost}
+                handleClose={handleCloseModalComment}
+                data={dataPostComment}
+                fetchAllPost={fetchAllPost}
+            />
+
+            <ModalUsersLikePost
+                show={isShowModalUsersLikePost}
+                handleClose={handleCloselModalUserLikePost}
+                data={dataModalUsersLikePost}
+            />
         </div>
     );
 }

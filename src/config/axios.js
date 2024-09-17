@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL: 'http://localhost:5000/'
+    baseURL: 'https://phosocial-backend.vercel.app/' || 'http://localhost:5000/'
 });
 
 instance.defaults.withCredentials = true

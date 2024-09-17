@@ -1,130 +1,104 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { StoreContext } from "../store/StoreContext";
-import Accordion from 'react-bootstrap/Accordion';
-import Form from 'react-bootstrap/Form';
-import { handleOnchangeInputs } from "../utils";
-import { changeInfo } from "../service/userService";
-import { toast } from "react-toastify";
+import { useState, useContext, useEffect } from "react"
+import { useParams } from 'react-router-dom'
+import { PostsContext } from "../store/PostsContext"
+import Loading from "../components/Loading"
+import Post from "../components/Post"
+import ModalPost from "../components/ModalPost"
+import ModalComment from "../components/ModalComment"
+import ModalUsersLikePost from "../components/ModalUsersLikePost"
 
 function User() {
-    const navigate = useNavigate()
-    const { userStore, setIsLogin } = useContext(StoreContext)
-    const defaultValue = {
-        id: null,
-        username: '',
-        email: '',
-        gender: 1,
-        phone: '',
-        address: ''
-    }
-    const [isEdit, setIsEdit] = useState(false)
-    const [dataUser, setDataUser] = useState(defaultValue)
+    const params = useParams()
+    const [isLoading, setIsLoading] = useState(true)
+    const {
+        isShowModalPost,
+        dataPostEdit,
+        postAction,
+        isShowModalCommentPost,
+        dataPostComment,
+        isShowModalUsersLikePost,
+        dataModalUsersLikePost,
+        handleCancelPost,
+        handleCloseModalComment,
+        handleCloselModalUserLikePost,
+        fetchAllPost,
+        posts
+    } = useContext(PostsContext)
+    const [postsUser, setPostsUser] = useState([])
 
     useEffect(() => {
-        setDataUser(userStore)
-    }, [userStore])
+        setPostsUser(buildPostsDataByUser())
+    }, [posts])
 
-    const handleCancelChangeInfo = () => {
-        setIsEdit(false)
-        setDataUser(userStore)
-    }
+    useEffect(() => {
+        setIsLoading(true)
+        setPostsUser(buildPostsDataByUser())
+    }, [params])
 
-    const handleSave = async () => {
-        if (!dataUser.email || !dataUser.username) {
-            toast.error('Tên người dùng hoặc email không trống!')
-            return
-        }
+    const buildPostsDataByUser = () => {
+        const { userId, username } = params
+        const data = posts.filter(post => {
+            return post.user_id === +userId && post.username === username
+        })
 
-        const response = await changeInfo(dataUser)
-
-        if (response && +response.data.EC === 0) {
-            toast(response.data.EM)
-            navigate('/login')
-            setIsLogin(false)
-        } else {
-            toast.error(response.data.EM)
-        }
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 1000)
+        return data
     }
 
     return (
-        <div className="mt-5 container">
-            <Accordion defaultActiveKey="0">
-                <Accordion.Item eventKey="0">
-                    <Accordion.Header>Thông tin người dùng</Accordion.Header>
-                    <Accordion.Body className="container">
-                        <div className="row">
-                            <Form.Group className="mb-3 col-12 col-sm-3 ">
-                                <Form.Label>Tên người dùng</Form.Label>
-                                <Form.Control
-                                    onChange={(e) => handleOnchangeInputs(setDataUser, dataUser, e.target.value, 'username')}
-                                    disabled={!isEdit}
-                                    value={dataUser.username}
-                                    type="text" />
-                            </Form.Group>
-                            <Form.Group className="mb-3 col-12 col-sm-6">
-                                <Form.Label>Email</Form.Label>
-                                <Form.Control
-                                    onChange={(e) => handleOnchangeInputs(setDataUser, dataUser, e.target.value, 'email')}
-                                    disabled={!isEdit}
-                                    value={dataUser.email}
-                                    type="email" />
-                            </Form.Group>
-                            <Form.Group className="mb-3 col-12 col-sm-3">
-                                <Form.Label>Số điện thoại</Form.Label>
-                                <Form.Control
-                                    onChange={(e) => handleOnchangeInputs(setDataUser, dataUser, e.target.value, 'phone')}
-                                    disabled={!isEdit}
-                                    value={dataUser.phone}
-                                    type="phone" />
-                            </Form.Group>
-                        </div>
-                        <div className="row">
-                            <Form.Group className="mb-3 col-12 col-sm-3">
-                                <Form.Label>Giới tính</Form.Label>
-                                <Form.Select
-                                    value={dataUser.gender}
-                                    onChange={(e) => handleOnchangeInputs(setDataUser, dataUser, e.target.value, 'gender')}
-                                    disabled={!isEdit}
-                                >
-                                    <option>-- Chọn giới tính của bạn</option>
-                                    <option value="0">Nam</option>
-                                    <option value="1">Nữ</option>
-                                </Form.Select>
-                            </Form.Group>
-                            <Form.Group className="mb-3 col-12 col-sm-9">
-                                <Form.Label>Địa chỉ</Form.Label>
-                                <Form.Control
-                                    onChange={(e) => handleOnchangeInputs(setDataUser, dataUser, e.target.value, 'address')}
-                                    disabled={!isEdit}
-                                    value={dataUser.address}
-                                    type="text" />
-                            </Form.Group>
-                        </div>
-                        <div className="d-flex gap-2 ">
-                            {isEdit &&
-                                <>
-                                    <button
-                                        onClick={() => handleCancelChangeInfo()}
-                                        className="btn btn-secondary">Huỷ</button>
-                                    <button
-                                        onClick={() => handleSave()}
-                                        className="btn btn-primary">Lưu</button>
-                                </>
-                            }
-                            {!isEdit &&
-                                <div className="d-flex flex-column mt-3 flex-sm-row gap-2 align-items-sm-center">
-                                    <button onClick={() => setIsEdit(true)} className="btn btn-primary">
-                                        Thay đổi thông tin
-                                    </button>
+        <div className="container">
+            {isLoading &&
+                <Loading content="Đang tải danh sách bài viết..." />
+            }
+            {(postsUser && postsUser.length === 0 && !isLoading) &&
+                <h4 className='text-center mt-5'>
+                    <span style={{ color: 'rgb(13, 110, 253)' }}>{params.username} </span>
+                    chưa đăng bất kì bài viết nào
+                </h4>
+            }
+            {(postsUser && postsUser.length > 0 && !isLoading) &&
+                <div className='container mt-5'>
+                    <h4 className='mb-5'>
+                        Danh sách bài viết của {
+                            <span style={{ color: 'rgb(13, 110, 253)' }}>{params.username}</span>
+                        }
+                    </h4>
+                    <div className='row row-gap-5'>
+                        {postsUser.map((post, index) => (
+                            <Post
+                                key={index}
+                                index={index}
+                                post={post}
+                                posts={postsUser}
+                                fetchAllPost={fetchAllPost}
+                            />
+                        ))}
+                    </div>
+                </div>
+            }
 
-                                    <span style={{ color: 'red' }}>* Khi thay đổi thông tin bạn sẽ cần đăng nhập lại để cập nhật thông tin mới nhất</span>
-                                </div>
-                            }
-                        </div>
-                    </Accordion.Body>
-                </Accordion.Item>
-            </Accordion>
+            <ModalPost
+                show={isShowModalPost}
+                handleClose={handleCancelPost}
+                data={dataPostEdit}
+                fetchAllPost={fetchAllPost}
+                actions={postAction}
+            />
+
+            <ModalComment
+                show={isShowModalCommentPost}
+                handleClose={handleCloseModalComment}
+                data={dataPostComment}
+                fetchAllPost={fetchAllPost}
+            />
+
+            <ModalUsersLikePost
+                show={isShowModalUsersLikePost}
+                handleClose={handleCloselModalUserLikePost}
+                data={dataModalUsersLikePost}
+            />
         </div>
     );
 }

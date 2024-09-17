@@ -5,6 +5,7 @@ import { formatDate } from "../utils";
 import { useContext } from "react";
 import { StoreContext } from "../store/StoreContext";
 import { PostsContext } from "../store/PostsContext";
+import { Link } from "react-router-dom";
 
 function Post(props) {
     const { userStore } = useContext(StoreContext)
@@ -17,7 +18,6 @@ function Post(props) {
     const {
         index,
         post,
-        posts,
         fetchAllPost
     } = props
 
@@ -34,14 +34,18 @@ function Post(props) {
                                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
                                     <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
                                 </svg>
-                                {post.username} · {(formatDate(post.created_at))}
+                                <Link
+                                    to={`/user/${post.user_id}/${post.username}`}>
+                                    {post.username}
+                                </Link>
+                                · {(formatDate(post.created_at))}
                             </span>
                             {userStore.id === post.user_id &&
                                 <Dropdown>
                                     <Dropdown.Toggle variant="primary" id="dropdown-basic">
                                         Tuỳ chọn
                                     </Dropdown.Toggle>
-    
+
                                     <Dropdown.Menu>
                                         <Dropdown.Item
                                             onClick={() => handleDeletePost(post, fetchAllPost)}
@@ -87,15 +91,17 @@ function Post(props) {
                     <div className='d-flex justify-content-between my-3'>
                         <span
                             style={{ color: '#0d6efd', cursor: 'pointer' }}
-                            onClick={() => getAllUsersLikePost(post.post_id, posts)}
-                        >{post.usersLikePost.length} lượt thích</span>
+                            onClick={() => getAllUsersLikePost(post.post_id)}
+                        >
+                            {post.usersLikePost.length} lượt thích
+                        </span>
                         <span
                             style={{ color: '#0d6efd', cursor: 'pointer' }}
                             onClick={() => handleCommentPost(post)}>
                             {post.comment_count} bình luận
                         </span>
                     </div>
-    
+
                     <PostInteract
                         index={index}
                         post={post}
