@@ -6,6 +6,8 @@ import Form from 'react-bootstrap/Form';
 import { handleOnchangeInputs } from "../utils";
 import { changeInfo } from "../service/userService";
 import { toast } from "react-toastify";
+import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
 
 function Info() {
     const navigate = useNavigate()
@@ -20,6 +22,7 @@ function Info() {
     }
     const [isEdit, setIsEdit] = useState(false)
     const [dataUser, setDataUser] = useState(defaultValue)
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         setDataUser(userStore)
@@ -36,15 +39,20 @@ function Info() {
             return
         }
 
+        setIsLoading(true)
+
         const response = await changeInfo(dataUser)
 
         if (response && +response.data.EC === 0) {
             toast(response.data.EM)
             navigate('/login')
             setIsLogin(false)
+            setIsLoading(false)
         } else {
+            setIsLoading(false)
             toast.error(response.data.EM)
         }
+
     }
 
     return (
@@ -107,9 +115,21 @@ function Info() {
                                     <button
                                         onClick={() => handleCancelChangeInfo()}
                                         className="btn btn-secondary">Huỷ</button>
-                                    <button
-                                        onClick={() => handleSave()}
-                                        className="btn btn-primary">Lưu</button>
+                                    {isLoading ?
+                                        (<Button variant="primary" disabled>
+                                            <Spinner
+                                                as="span"
+                                                animation="border"
+                                                size="sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                            />
+                                            <span className="visually-hidden">Loading...</span>
+                                        </Button>) :
+                                        (<button
+                                            onClick={() => handleSave()}
+                                            className="btn btn-primary">Lưu
+                                        </button>)}
                                 </>
                             }
                             {!isEdit &&
@@ -125,7 +145,7 @@ function Info() {
                     </Accordion.Body>
                 </Accordion.Item>
             </Accordion>
-        </div>
+        </div >
     );
 }
 

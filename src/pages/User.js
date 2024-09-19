@@ -36,9 +36,9 @@ function User() {
     }, [params])
 
     const buildPostsDataByUser = () => {
-        const { userId, username } = params
+        const { userId } = params
         const data = posts.filter(post => {
-            return post.user_id === +userId && post.username === username
+            return post.user_id === +userId
         })
 
         setTimeout(() => {

@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
@@ -7,6 +6,8 @@ import { handleOnchangeInputs } from '../utils';
 import { changePass } from '../service/userService';
 import { toast } from 'react-toastify';
 import { StoreContext } from '../store/StoreContext'
+import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
 
 function ModalChangePass(props) {
     const { width } = useContext(StoreContext)
@@ -15,6 +16,7 @@ function ModalChangePass(props) {
         newPass: ''
     }
     const [data, setData] = useState(defaultData)
+    const [isLoading, setIsLoading] = useState(false)
 
     const handleCloseModal = () => {
         setData(defaultData)
@@ -22,6 +24,8 @@ function ModalChangePass(props) {
     }
 
     const handleChangePass = async () => {
+
+        setIsLoading(true)
 
         const response = await changePass({
             idUser: props.idUser,
@@ -36,6 +40,8 @@ function ModalChangePass(props) {
         } else {
             toast.error(response.data.EM)
         }
+        
+        setIsLoading(false)
     }
 
     return (
@@ -44,15 +50,15 @@ function ModalChangePass(props) {
                 <Modal.Title>Thay đổi mật khẩu</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <FloatingLabel controlId="floatingPassword" label="Mật khẩu cũ">
+                <FloatingLabel controlId="oldPass" label="Mật khẩu cũ">
                     <Form.Control
-                        value={data.pass}
+                        value={data.pass || ''}
                         onChange={(e) => handleOnchangeInputs(setData, data, e.target.value, 'pass')}
                         type="password" placeholder="Password" />
                 </FloatingLabel>
                 <FloatingLabel className='mt-3' controlId="floatingPassword" label="Mật khẩu mới">
                     <Form.Control
-                        value={data.newPass}
+                        value={data.newPass || ''}
                         onChange={(e) => handleOnchangeInputs(setData, data, e.target.value, 'newPass')}
                         type="password" placeholder="Password" />
                 </FloatingLabel>
@@ -62,13 +68,24 @@ function ModalChangePass(props) {
                 <Button variant="secondary" onClick={handleCloseModal}>
                     Huỷ
                 </Button>
-                <Button
-                    disabled={!data.pass || !data.newPass}
-                    variant="primary" onClick={handleChangePass}>
-                    Xác nhận
-                </Button>
+                {isLoading ?
+                    (<Button variant="primary" disabled>
+                        <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                        />
+                        <span className="visually-hidden">Loading...</span>
+                    </Button>
+                    ) : (<Button
+                        disabled={!data.pass || !data.newPass}
+                        variant="primary" onClick={() => handleChangePass()}>
+                        Xác nhận
+                    </Button>)}
             </Modal.Footer>
-        </Modal>
+        </Modal >
     );
 }
 

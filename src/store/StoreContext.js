@@ -23,7 +23,6 @@ function StoreProvider({ children }) {
     }, [width])
 
     useEffect(() => {
-        console.log(window.location.pathname)
         if (window.location.pathname !== '/login') {            
             fetchDataAccount()
         }

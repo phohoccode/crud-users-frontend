@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import {
     createComment,
@@ -12,6 +11,7 @@ import Alert from 'react-bootstrap/Alert';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { toast } from 'react-toastify'
 import { StoreContext } from '../store/StoreContext';
+import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 
 function ModalComment(props) {
